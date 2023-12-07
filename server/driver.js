@@ -5,8 +5,11 @@ import { wait, waitUntilPrerenderIsReady } from './lib/helpers.js'
 import CONFIG from 'config'
 import { yellow } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
+import { mkdirSync } from 'fs'
 
-const { maxDrivers } = CONFIG
+const { maxDrivers, firefoxProfilePath } = CONFIG
+
+mkdirSync(firefoxProfilePath, { recursive: true })
 
 const drivers = []
 
@@ -26,7 +29,7 @@ async function getAvailableDriver () {
 
 async function getNewDriver () {
   const options = new firefox.Options()
-    .setProfile('/tmp/firefox-headless-prerender')
+    .setProfile(firefoxProfilePath)
     .addArguments('-headless')
 
   const driver = await new Builder()
