@@ -15,22 +15,35 @@ export async function controller (req, res) {
     console.time(timerKey)
     const earlyRedirection = await getRedirection(prerenderedUrl)
     if (earlyRedirection) {
-      res.statusCode = 302
-      res.setHeader('Location', earlyRedirection)
-      res.end()
+      res.redirect(earlyRedirection)
     } else {
       const html = await getPrerenderedPage(prerenderedUrl)
-      const { statusCode, html: htmlWithoutPrerenderMetadata } = setPageMetadata(res, html)
+      const { statusCode, html: htmlWithoutPrerenderMetadata, headers, canonicalUrl } = setPageMetadata(html)
       if (statusCode === 200) {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8')
+        if (canonicalUrl !== prerenderedUrl) {
+          res.redirect(canonicalUrl)
+        } else {
+          res.setHeader('Content-Type', 'text/html; charset=utf-8')
+          setHeaders(res, headers)
+          res.send(htmlWithoutPrerenderMetadata)
+        }
+      } else {
+        setHeaders(res, headers)
+        res.status(statusCode).send(htmlWithoutPrerenderMetadata)
       }
-      res.status(statusCode).send(htmlWithoutPrerenderMetadata)
     }
   } catch (err) {
+    console.error(err)
     res.statusCode = 500
     const { message } = err
     res.end(JSON.stringify({ message }))
   } finally {
     console.timeEnd(timerKey)
+  }
+}
+
+function setHeaders (res, headers) {
+  for (const [ name, value ] of Object.entries(headers)) {
+    res.setHeader(name, value)
   }
 }
