@@ -1,11 +1,15 @@
 import CONFIG from 'config'
-import { readFileSync } from 'fs'
+import { readFileSync } from 'node:fs'
 import { blue } from 'tiny-chalk'
 import { controller } from './controller.js'
+import express from 'express'
+import { createServer as createHttpServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
 
 const { protocol, port } = CONFIG
 
-const { createServer } = await import(protocol)
+const app = express()
+app.get('*', controller)
 
 const args = []
 
@@ -17,7 +21,9 @@ if (protocol === 'https') {
   args.push(options)
 }
 
-args.push(controller)
+args.push(app)
+
+const createServer = protocol === 'https' ? createHttpsServer : createHttpServer
 
 createServer.apply(null, args)
 .listen(port)

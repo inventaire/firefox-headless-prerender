@@ -3,7 +3,7 @@ import { Builder } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox.js'
 import { wait, waitUntilPrerenderIsReady } from './lib/helpers.js'
 import CONFIG from 'config'
-import { yellow } from 'tiny-chalk'
+import { yellow, grey } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
 import { mkdirSync } from 'fs'
 
@@ -44,10 +44,11 @@ export async function getPrerenderedPage (url) {
   const driver = await getAvailableDriver()
   driver._busy = true
   driver._url = url
-  console.time(url)
+  const timerKey = grey(`${url} prerender`)
+  console.time(timerKey)
   await driver.get(url)
   await waitUntilPrerenderIsReady(driver)
-  console.timeEnd(url)
+  console.timeEnd(timerKey)
   const page = await driver.getPageSource()
   driver._busy = false
   return formatPage(page)
