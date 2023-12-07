@@ -18,6 +18,7 @@
     "tiny-chalk": "^3.0.2"
   },
   "devDependencies": {
+    "@types/node": "^20.10.4",
     "nodemon": "^3.0.2"
   }
 }
