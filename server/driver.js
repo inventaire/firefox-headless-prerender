@@ -4,6 +4,7 @@ import firefox from 'selenium-webdriver/firefox.js'
 import { wait, waitUntilPrerenderIsReady } from './lib/helpers.js'
 import CONFIG from 'config'
 import { yellow } from 'tiny-chalk'
+import { formatPage } from './lib/format_page.js'
 
 const { maxDrivers } = CONFIG
 
@@ -46,5 +47,5 @@ export async function getPrerenderedPage (url) {
   console.timeEnd(url)
   const page = await driver.getPageSource()
   driver._busy = false
-  return page
+  return formatPage(page)
 }

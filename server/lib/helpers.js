@@ -14,3 +14,9 @@ export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
   await wait(500 * attempt)
   return waitUntilPrerenderIsReady(driver, attempt + 1)
 }
+
+
+export async function getJSON (url) {
+  const res = await fetch(url)
+  return res.json()
+}
