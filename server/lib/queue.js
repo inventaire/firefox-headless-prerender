@@ -25,12 +25,25 @@ const queue = []
 export function joinQueue () {
   const ticket = defer()
   queue.push(ticket)
+  setTimeout(quitQueueAfterTimeout(ticket), 60_000)
   return ticket.promise
+}
+
+const quitQueueAfterTimeout = ticket => () => {
+  if (!ticket.fulfilled) {
+    ticket.reject(new Error('driver queue timeout'))
+    ticket.fulfilled = true
+    const ticketIndex = queue.indexOf(ticket)
+    queue.splice(ticketIndex, 1)
+  }
 }
 
 export function shiftQueue () {
   const nextTicket = queue.shift()
-  if (nextTicket) nextTicket.resolve()
+  if (nextTicket) {
+    nextTicket.resolve()
+    nextTicket.fulfilled = true
+  }
 }
 
 export function getQueueLength () {
