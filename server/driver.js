@@ -6,6 +6,7 @@ import CONFIG from 'config'
 import { yellow, grey } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
 import { mkdirSync } from 'fs'
+import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
 
@@ -16,15 +17,8 @@ const drivers = []
 async function getAvailableDriver () {
   const idleDriver = drivers.find(driver => !driver._busy)
   if (idleDriver) return idleDriver
-  if (drivers.length < maxDrivers) {
-    const driver = await getNewDriver()
-    drivers.push(driver)
-    return driver
-  } else {
-    console.log(yellow('waiting for available driver'))
-    await wait(500)
-    return await getAvailableDriver()
-  }
+  await joinQueue()
+  return getAvailableDriver()
 }
 
 async function getNewDriver () {
@@ -51,5 +45,23 @@ export async function getPrerenderedPage (url) {
   console.timeEnd(timerKey)
   const page = await driver.getPageSource()
   driver._busy = false
+  shiftQueue()
   return formatPage(page)
 }
+
+async function tickDriverQueue () {
+  const queueLength = getQueueLength()
+  if (queueLength > 0) {
+    console.log(yellow('queue length'), queueLength)
+    if (drivers.length < maxDrivers) {
+      const driver = await getNewDriver()
+      drivers.push(driver)
+      shiftQueue()
+    }
+  }
+  if (drivers.length < maxDrivers) {
+    setTimeout(tickDriverQueue, 100)
+  }
+}
+
+setTimeout(tickDriverQueue, 100)
