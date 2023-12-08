@@ -7,6 +7,7 @@ import { yellow, grey } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
 import { mkdirSync } from 'fs'
 import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'
+import pTimeout from 'p-timeout'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
 
@@ -44,16 +45,19 @@ async function getNewDriver () {
 let counter = 0
 
 export async function getPrerenderedPage (url) {
-  const driver = await getAvailableDriver()
-  driver._url = url
-  const timerKey = grey(`${url} prerender (${++counter})`)
-  console.time(timerKey)
-  await driver.get(url)
-  await waitUntilPrerenderIsReady(driver)
-  console.timeEnd(timerKey)
-  const page = await driver.getPageSource()
-  unlockDriver(driver)
-  return formatPage(page)
+  let driver
+  try {
+    driver = await getAvailableDriver()
+    const timerKey = grey(`${url} prerender (${++counter})`)
+    console.time(timerKey)
+    await driver.get(url)
+    await waitUntilPrerenderIsReady(driver)
+    console.timeEnd(timerKey)
+    const page = await pTimeout(driver.getPageSource(), { milliseconds: 10000 })
+    return formatPage(page)
+  } finally {
+    unlockDriver(driver)
+  }
 }
 
 async function populateDrivers () {
