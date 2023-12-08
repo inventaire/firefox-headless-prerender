@@ -12,9 +12,9 @@ const omitParameters = [
 const  supportedLanguages = new Set([ 'ar', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en', 'eo', 'es', 'fr', 'hu', 'id', 'it', 'ja', 'nb', 'nl', 'pa', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk' ])
 
 export function rewriteUrl (req, url) {
-  const [ path, queryString ] = Array.from(url.split('?'))
+  const { origin, pathname, searchParams: query } = new URL(decodeURIComponent(url))
+  const path = `${origin}${pathname}`
 
-  let query = new URLSearchParams(queryString)
   for (const parameter of omitParameters) {
     query.delete(parameter)
   }
