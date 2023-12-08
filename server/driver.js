@@ -10,6 +10,7 @@ import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'
 import pTimeout from 'p-timeout'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
+console.log({ maxDrivers, firefoxProfilePath })
 
 mkdirSync(firefoxProfilePath, { recursive: true })
 
