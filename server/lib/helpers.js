@@ -10,7 +10,6 @@ export function wait (ms) {
 export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
   const bool = await driver.executeScript('return window.prerenderReady')
   if (bool) return
-  console.log(blue('waiting for prerender'), driver._url, grey(`attempt: ${attempt}`))
   await wait(500 * attempt)
   return waitUntilPrerenderIsReady(driver, attempt + 1)
 }
