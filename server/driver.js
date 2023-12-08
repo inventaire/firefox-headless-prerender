@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { Builder } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox.js'
-import { wait, waitUntilPrerenderIsReady } from './lib/helpers.js'
+import { waitUntilPrerenderIsReady } from './lib/helpers.js'
 import CONFIG from 'config'
-import { yellow, grey } from 'tiny-chalk'
+import { grey } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
 import { mkdirSync } from 'fs'
 import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'

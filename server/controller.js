@@ -3,14 +3,16 @@ import { rewriteUrl } from './lib/rewrite_url.js'
 import { getRedirection } from './lib/anticipate_redirection.js'
 import { setPageMetadata } from './lib/get_page_metadata.js'
 import { grey } from 'tiny-chalk'
+import { getCachedPage, populateCache } from './cache.js'
 
 let counter = 0
 
 export async function controller (req, res) {
   let timerKey
   try {
-    console.log('GET', req.url)
+    console.log('GET     ', req.url)
     const prerenderedUrl = rewriteUrl(req, req.url.slice(1))
+    console.log('rewritten', prerenderedUrl)
     timerKey = grey(`${prerenderedUrl} request [${++counter}]`)
     console.time(timerKey)
     await prerender(res, prerenderedUrl)
@@ -28,20 +30,32 @@ async function prerender (res, prerenderedUrl) {
     return
   }
 
-  const html = await getPrerenderedPage(prerenderedUrl)
-  const { statusCode, html: htmlWithoutPrerenderMetadata, headers, canonicalUrl } = setPageMetadata(html)
+  const rawHtml = await getCachedOrPrerenderedPage(prerenderedUrl)
+  const { statusCode, html, headers, canonicalUrl } = setPageMetadata(rawHtml)
+
   if (statusCode === 200) {
     if (canonicalUrl !== prerenderedUrl) {
       res.redirect(canonicalUrl)
     } else {
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       setHeaders(res, headers)
-      res.send(htmlWithoutPrerenderMetadata)
+      res.send(html)
     }
   } else {
     setHeaders(res, headers)
-    res.status(statusCode).send(htmlWithoutPrerenderMetadata)
+    res.status(statusCode).send(html)
   }
+}
+
+/**
+ * @param {string} prerenderedUrl
+ */
+async function getCachedOrPrerenderedPage (prerenderedUrl) {
+  const cachedPageData = await getCachedPage(prerenderedUrl)
+  if (cachedPageData) return cachedPageData
+  const html = await getPrerenderedPage(prerenderedUrl)
+  populateCache(prerenderedUrl, html)
+  return html
 }
 
 function handleError (res, err) {
