@@ -12,13 +12,20 @@ const { maxDrivers, firefoxProfilePath } = CONFIG
 
 mkdirSync(firefoxProfilePath, { recursive: true })
 
-const drivers = []
+let driversCount = 0
+const idleDrivers = []
 
 async function getAvailableDriver () {
-  const idleDriver = drivers.find(driver => !driver._busy)
+  const idleDriver = idleDrivers.shift()
   if (idleDriver) return idleDriver
+  populateDrivers()
   await joinQueue()
   return getAvailableDriver()
+}
+
+function unlockDriver (driver) {
+  idleDrivers.push(driver)
+  shiftQueue()
 }
 
 async function getNewDriver () {
@@ -36,7 +43,6 @@ async function getNewDriver () {
 
 export async function getPrerenderedPage (url) {
   const driver = await getAvailableDriver()
-  driver._busy = true
   driver._url = url
   const timerKey = grey(`${url} prerender`)
   console.time(timerKey)
@@ -44,24 +50,28 @@ export async function getPrerenderedPage (url) {
   await waitUntilPrerenderIsReady(driver)
   console.timeEnd(timerKey)
   const page = await driver.getPageSource()
-  driver._busy = false
-  shiftQueue()
+  unlockDriver(driver)
   return formatPage(page)
+}
+
+async function populateDrivers () {
+  if (driversCount < maxDrivers) {
+    const driver = await getNewDriver()
+    driversCount++
+    idleDrivers.push(driver)
+    shiftQueue()
+  }
 }
 
 async function tickDriverQueue () {
   const queueLength = getQueueLength()
   if (queueLength > 0) {
     console.log(yellow('queue length'), queueLength)
-    if (drivers.length < maxDrivers) {
-      const driver = await getNewDriver()
-      drivers.push(driver)
-      shiftQueue()
-    }
+    await populateDrivers()
   }
-  if (drivers.length < maxDrivers) {
-    setTimeout(tickDriverQueue, 100)
+  if (driversCount < maxDrivers) {
+    setTimeout(tickDriverQueue, 500)
   }
 }
 
-setTimeout(tickDriverQueue, 100)
+tickDriverQueue()
