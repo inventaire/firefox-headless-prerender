@@ -69,15 +69,12 @@ async function populateDrivers () {
   }
 }
 
-async function tickDriverQueue () {
+async function buildupDrivers () {
   const queueLength = getQueueLength()
-  if (queueLength > 0) {
-    console.log(yellow('queue length'), queueLength)
-    await populateDrivers()
-  }
+  if (queueLength > 0) await populateDrivers()
   if (driversCount < maxDrivers) {
-    setTimeout(tickDriverQueue, 500)
+    setTimeout(buildupDrivers, 500)
   }
 }
 
-tickDriverQueue()
+buildupDrivers()

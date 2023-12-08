@@ -9,7 +9,7 @@ let counter = 0
 export async function controller (req, res) {
   let timerKey
   try {
-    console.log(new Date().toISOString(), 'GET', req.url)
+    console.log('GET', req.url)
     const prerenderedUrl = rewriteUrl(req, req.url.slice(1))
     timerKey = grey(`${prerenderedUrl} request [${++counter}]`)
     console.time(timerKey)

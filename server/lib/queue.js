@@ -1,3 +1,5 @@
+import { yellow } from 'tiny-chalk'
+
 // Source: http://bluebirdjs.com/docs/api/deferred-migration.html
 export function defer () {
   // Initialized in the defer function scope
@@ -49,3 +51,7 @@ export function shiftQueue () {
 export function getQueueLength () {
   return queue.length
 }
+
+setInterval(() => {
+  if (queue.length > 0) console.log(yellow('driver waiting queue'), queue.length)
+}, 5000)
