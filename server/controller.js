@@ -13,33 +13,42 @@ export async function controller (req, res) {
     const prerenderedUrl = rewriteUrl(req, req.url.slice(1))
     timerKey = grey(`${prerenderedUrl} request [${++counter}]`)
     console.time(timerKey)
-    const earlyRedirection = await getRedirection(prerenderedUrl)
-    if (earlyRedirection) {
-      res.redirect(earlyRedirection)
-    } else {
-      const html = await getPrerenderedPage(prerenderedUrl)
-      const { statusCode, html: htmlWithoutPrerenderMetadata, headers, canonicalUrl } = setPageMetadata(html)
-      if (statusCode === 200) {
-        if (canonicalUrl !== prerenderedUrl) {
-          res.redirect(canonicalUrl)
-        } else {
-          res.setHeader('Content-Type', 'text/html; charset=utf-8')
-          setHeaders(res, headers)
-          res.send(htmlWithoutPrerenderMetadata)
-        }
-      } else {
-        setHeaders(res, headers)
-        res.status(statusCode).send(htmlWithoutPrerenderMetadata)
-      }
-    }
+    await prerender(res, prerenderedUrl)
   } catch (err) {
-    console.error(err)
-    res.statusCode = 500
-    const { message } = err
-    res.end(JSON.stringify({ message }))
+    handleError(res, err)
   } finally {
     console.timeEnd(timerKey)
   }
+}
+
+async function prerender (res, prerenderedUrl) {
+  const earlyRedirection = await getRedirection(prerenderedUrl)
+  if (earlyRedirection) {
+    res.redirect(earlyRedirection)
+    return
+  }
+
+  const html = await getPrerenderedPage(prerenderedUrl)
+  const { statusCode, html: htmlWithoutPrerenderMetadata, headers, canonicalUrl } = setPageMetadata(html)
+  if (statusCode === 200) {
+    if (canonicalUrl !== prerenderedUrl) {
+      res.redirect(canonicalUrl)
+    } else {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8')
+      setHeaders(res, headers)
+      res.send(htmlWithoutPrerenderMetadata)
+    }
+  } else {
+    setHeaders(res, headers)
+    res.status(statusCode).send(htmlWithoutPrerenderMetadata)
+  }
+}
+
+function handleError (res, err) {
+  console.error(err)
+  res.statusCode = 500
+  const { message } = err
+  res.end(JSON.stringify({ message }))
 }
 
 function setHeaders (res, headers) {
