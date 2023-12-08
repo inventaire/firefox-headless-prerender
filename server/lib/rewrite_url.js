@@ -6,6 +6,7 @@ const omitParameters = [
   '__refresh',
   // Used by agent=sentinel
   'agent',
+  '_escaped_fragment_'
 ]
 
 // Keep in sync with keys from https://raw.githubusercontent.com/inventaire/inventaire-i18n/dist/dist/languages_data.js
