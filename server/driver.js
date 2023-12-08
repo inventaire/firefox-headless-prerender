@@ -41,10 +41,12 @@ async function getNewDriver () {
   return driver
 }
 
+let counter = 0
+
 export async function getPrerenderedPage (url) {
   const driver = await getAvailableDriver()
   driver._url = url
-  const timerKey = grey(`${url} prerender`)
+  const timerKey = grey(`${url} prerender (${++counter})`)
   console.time(timerKey)
   await driver.get(url)
   await waitUntilPrerenderIsReady(driver)
