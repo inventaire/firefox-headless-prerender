@@ -4,35 +4,35 @@
 // Ex: https://inventaire.io/entity/wd:Q34660/edit will be redirected to https://inventaire.io/entity/wd:Q34660
 // instead of returning a 401
 
-import { getJSON } from './helpers.js'
+// import { getJSON } from './helpers.js'
 
 export async function getRedirection (url) {
-    const { origin, pathname, searchParams } = new URL(url)
+  const { origin, pathname, searchParams } = new URL(url)
 
-    const [ part1, part2, part3 ] = pathname.slice(1).split('/')
-    let redirection
+  const [ part1, part2, part3 ] = pathname.slice(1).split('/')
+  let redirection
 
-    if (loggedInSections.has(part1)) {
-      redirection = '/login'
-    } else if (loggedInSubSections[part1] != null && loggedInSubSections[part1].has(part2)) {
-      redirection = '/login'
-    } else if (dropPart3[part1] != null && dropPart3[part1].has(part3)) {
-      redirection = pathname.replace(`/${part3}`, '')
-    } else if (part1 === 'entity') {
-      // Legacy URL: entity label was added as part3
-      if (part3) redirection = `/${part1}/${part2}`
+  if (loggedInSections.has(part1)) {
+    redirection = '/login'
+  } else if (loggedInSubSections[part1] != null && loggedInSubSections[part1].has(part2)) {
+    redirection = '/login'
+  } else if (dropPart3[part1] != null && dropPart3[part1].has(part3)) {
+    redirection = pathname.replace(`/${part3}`, '')
+  } else if (part1 === 'entity') {
+    // Legacy URL: entity label was added as part3
+    if (part3) redirection = `/${part1}/${part2}`
     // } else if (part1 === 'inventory') {
-      // if (part3) redirection = await getItemUrlFromUsernameAndUri(origin, part2, part3)
-    } else if (part1 === 'search') {
-      searchParams.delete('q')
-      // Search pages just create dupplicated content, redirect to the home page
-      redirection = '/'
-    }
+    // if (part3) redirection = await getItemUrlFromUsernameAndUri(origin, part2, part3)
+  } else if (part1 === 'search') {
+    searchParams.delete('q')
+    // Search pages just create dupplicated content, redirect to the home page
+    redirection = '/'
+  }
 
-    let search = searchParams.toString()
-    if (search.length > 0) search = `?${search}`
+  let search = searchParams.toString()
+  if (search.length > 0) search = `?${search}`
 
-    if (redirection) return `${origin}${redirection}${search}`
+  if (redirection) return `${origin}${redirection}${search}`
 }
 
 const loggedInSections = new Set([
@@ -56,7 +56,7 @@ const loggedInSubSections = {
     'changes',
     'activity',
     'deduplicate',
-  ])
+  ]),
 }
 
 const dropPart3 = {
@@ -64,7 +64,7 @@ const dropPart3 = {
     'add',
     'edit',
     'cleanup',
-  ])
+  ]),
 }
 
 // const getItemUrlFromUsernameAndUri = async (origin, username, uri) => {

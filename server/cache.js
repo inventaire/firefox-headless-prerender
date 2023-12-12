@@ -1,7 +1,7 @@
+import { promisify } from 'node:util'
 import CONFIG from 'config'
 import level from 'level-party'
 import ttl from 'level-ttl'
-import { promisify } from 'node:util'
 
 const { enabled, ttl: defaultTTL } = CONFIG.cache
 const db = ttl(level('./db'), { defaultTTL })

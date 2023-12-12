@@ -1,13 +1,13 @@
 #!/usr/bin/env node
+import { mkdirSync } from 'node:fs'
+import CONFIG from 'config'
+import pTimeout from 'p-timeout'
 import { Builder } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox.js'
-import { resetTab, waitUntilPrerenderIsReady } from './lib/helpers.js'
-import CONFIG from 'config'
 import { grey } from 'tiny-chalk'
 import { formatPage } from './lib/format_page.js'
-import { mkdirSync } from 'fs'
+import { resetTab, waitUntilPrerenderIsReady } from './lib/helpers.js'
 import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'
-import pTimeout from 'p-timeout'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
 console.log({ maxDrivers, firefoxProfilePath })

@@ -1,10 +1,10 @@
-import CONFIG from 'config'
 import { readFileSync } from 'node:fs'
-import { blue } from 'tiny-chalk'
-import { controller } from './controller.js'
-import express from 'express'
 import { createServer as createHttpServer } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
+import CONFIG from 'config'
+import express from 'express'
+import { blue } from 'tiny-chalk'
+import { controller } from './controller.js'
 
 const { protocol, port } = CONFIG
 
@@ -16,7 +16,7 @@ const args = []
 if (protocol === 'https') {
   const options = {
     key: readFileSync('./keys/self-signed.key'),
-    cert: readFileSync('./keys/self-signed.crt')
+    cert: readFileSync('./keys/self-signed.crt'),
   }
   args.push(options)
 }

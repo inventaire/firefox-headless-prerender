@@ -17,6 +17,7 @@ export function setPageMetadata (html) {
 
   const headers = {}
 
+  // eslint-disable-next-line no-cond-assign
   while (match = headerPattern.exec(head)) {
     const headerName = match[1] || match[3]
     const headerValue = he.decode(match[2] || match[4])

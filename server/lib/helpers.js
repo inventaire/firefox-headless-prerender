@@ -2,7 +2,7 @@
  * @param {number} ms
  */
 export function wait (ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
