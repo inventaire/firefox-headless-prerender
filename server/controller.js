@@ -10,12 +10,16 @@ let counter = 0
 export async function controller (req, res) {
   let timerKey
   try {
-    console.log('GET     ', req.url)
-    const prerenderedUrl = rewriteUrl(req, req.url.slice(1))
+    const url = decodeURIComponent(req.url.slice(1))
+    console.log('GET     ', url)
+    const urlData = new URL(url)
+    const { searchParams } = urlData
+    const refresh = searchParams.get('__refresh') === 'true'
+    const prerenderedUrl = rewriteUrl(req, urlData)
     console.log('rewritten', prerenderedUrl)
     timerKey = grey(`${prerenderedUrl} request [${++counter}]`)
     console.time(timerKey)
-    await prerender(res, prerenderedUrl)
+    await prerender(res, prerenderedUrl, refresh)
   } catch (err) {
     handleError(res, err)
   } finally {
@@ -23,14 +27,14 @@ export async function controller (req, res) {
   }
 }
 
-async function prerender (res, prerenderedUrl) {
+async function prerender (res, prerenderedUrl, refresh) {
   const earlyRedirection = await getRedirection(prerenderedUrl)
   if (earlyRedirection) {
     res.redirect(earlyRedirection)
     return
   }
 
-  const rawHtml = await getCachedOrPrerenderedPage(prerenderedUrl)
+  const rawHtml = await getCachedOrPrerenderedPage(prerenderedUrl, refresh)
   const { statusCode, html, headers, canonicalUrl } = setPageMetadata(rawHtml)
 
   if (statusCode === 200) {
@@ -50,10 +54,12 @@ async function prerender (res, prerenderedUrl) {
 /**
  * @param {string} prerenderedUrl
  */
-async function getCachedOrPrerenderedPage (prerenderedUrl) {
-  const cachedPageData = await getCachedPage(prerenderedUrl)
-  if (cachedPageData) return cachedPageData
-  const html = await getPrerenderedPage(prerenderedUrl)
+async function getCachedOrPrerenderedPage (prerenderedUrl, refresh) {
+  if (!refresh) {
+    const cachedPageData = await getCachedPage(prerenderedUrl)
+    if (cachedPageData) return cachedPageData
+  }
+  const html = await getPrerenderedPage(prerenderedUrl, refresh)
   populateCache(prerenderedUrl, html)
   return html
 }

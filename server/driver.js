@@ -45,14 +45,14 @@ async function getNewDriver () {
 
 let counter = 0
 
-export async function getPrerenderedPage (url) {
+export async function getPrerenderedPage (url, refresh = false) {
   let driver
   try {
     driver = await getAvailableDriver()
     const timerKey = grey(`${url} prerender (${++counter})`)
     console.time(timerKey)
     const { origin } = new URL(url)
-    if (driver._previousOrigin === origin) {
+    if (!refresh && driver._previousOrigin === origin) {
       const path = url.replace(origin, '')
       try {
         await driver.executeScript(`app.clearMetadataNavigateAndLoad("${path}")`)

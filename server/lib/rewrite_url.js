@@ -12,8 +12,8 @@ const omitParameters = [
 // Keep in sync with keys from https://raw.githubusercontent.com/inventaire/inventaire-i18n/dist/dist/languages_data.js
 const  supportedLanguages = new Set([ 'ar', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en', 'eo', 'es', 'fr', 'hu', 'id', 'it', 'ja', 'nb', 'nl', 'pa', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk' ])
 
-export function rewriteUrl (req, url) {
-  const { origin, pathname, searchParams: query } = new URL(decodeURIComponent(url))
+export function rewriteUrl (req, urlData) {
+  const { origin, pathname, searchParams: query } = urlData
   const path = `${origin}${pathname}`
 
   for (const parameter of omitParameters) {
