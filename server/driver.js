@@ -54,7 +54,12 @@ export async function getPrerenderedPage (url) {
     const { origin } = new URL(url)
     if (driver._previousOrigin === origin) {
       const path = url.replace(origin, '')
-      await driver.executeScript(`app.clearMetadataNavigateAndLoad("${path}")`)
+      try {
+        await driver.executeScript(`app.clearMetadataNavigateAndLoad("${path}")`)
+      } catch (err) {
+        console.error('failed to reuse driver', err)
+        await driver.get(url)
+      }
     } else {
       await driver.get(url)
       driver._previousOrigin = origin
