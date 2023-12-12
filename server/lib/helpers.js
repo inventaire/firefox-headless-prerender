@@ -13,6 +13,10 @@ export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
   return waitUntilPrerenderIsReady(driver, attempt + 1)
 }
 
+export async function resetTab (driver) {
+  await driver.executeScript('window.prerenderReady = false')
+  driver._hasBeenUsed = true
+}
 
 export async function getJSON (url) {
   const res = await fetch(url)
