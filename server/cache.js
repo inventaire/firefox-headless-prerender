@@ -1,11 +1,14 @@
+import CONFIG from 'config'
 import level from 'level-party'
 import ttl from 'level-ttl'
 import { promisify } from 'node:util'
-const defaultTTL = 24 * 60 * 60 * 1000
+
+const { enabled, ttl: defaultTTL } = CONFIG.cache
 const db = ttl(level('./db'), { defaultTTL })
 const dbPut = promisify(db.put)
 
 export async function getCachedPage (url) {
+  if (!enabled) return
   try {
     const html = await db.get(url)
     console.log('cache hit', url)
@@ -25,6 +28,7 @@ export async function getCachedPage (url) {
  */
 
 export async function populateCache (url, html) {
+  if (!enabled) return
   try {
     await dbPut(url, html)
   } catch (err) {
