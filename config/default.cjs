@@ -7,4 +7,7 @@ module.exports = {
     enabled: true,
     ttl: 24 * 60 * 60 * 1000,
   },
+  logs: {
+    timestamps: false,
+  },
 }
