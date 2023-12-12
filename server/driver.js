@@ -41,6 +41,10 @@ async function getNewDriver () {
     .setFirefoxOptions(options)
     .build()
 
+  // Unforunately, Firefox doesn't implement remote client logging API
+  // https://www.selenium.dev/selenium/docs/api/javascript/module/selenium-webdriver/lib/logging.html
+  // https://github.com/mozilla/geckodriver/issues/330
+
   return driver
 }
 
