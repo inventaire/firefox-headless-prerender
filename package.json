@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "add-to-systemd": "./scripts/add_to_systemd.sh",
-    "lint": "eslint --config .eslintrc.cjs server",
-    "lint-fix": "eslint --config .eslintrc.cjs --fix server",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --config .eslintrc.cjs server tests",
+    "lint-fix": "eslint --config .eslintrc.cjs --fix server tests",
+    "test": "mocha $MOCHA_OPTIONS --timeout 20000 ./tests/*.js",
     "start": "node server/server.js",
     "watch": "./scripts/start_server_dev.sh"
   },
@@ -29,13 +29,17 @@
   },
   "devDependencies": {
     "@types/he": "^1.2.3",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.4",
+    "cheerio": "1.0.0-rc.12",
     "eslint": "^8.55.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.0",
     "eslint-plugin-n": "^16.4.0",
     "eslint-plugin-node-import": "^1.0.4",
     "eslint-plugin-promise": "^6.1.1",
-    "nodemon": "^3.0.2"
+    "mocha": "^10.2.0",
+    "nodemon": "^3.0.2",
+    "should": "^13.2.3"
   }
 }

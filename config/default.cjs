@@ -10,4 +10,7 @@ module.exports = {
   logs: {
     timestamps: false,
   },
+  tests: {
+    inventaireOrigin: 'http://localhost:3005',
+  },
 }
