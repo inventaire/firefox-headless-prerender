@@ -33,6 +33,7 @@ async function getNewDriver () {
   const options = new firefox.Options()
     .setProfile(firefoxProfilePath)
     .addArguments('-headless')
+    .setPreference('general.useragent.override', 'Firefox Headless Prerender')
     .windowSize({ width: 1200, height: 800 })
 
   const driver = await new Builder()
