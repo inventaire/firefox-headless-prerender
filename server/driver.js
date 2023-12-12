@@ -31,6 +31,8 @@ function unlockDriver (driver) {
 
 async function getNewDriver () {
   const options = new firefox.Options()
+    // > The FirefoxDriver will never modify a pre-existing profile; instead it will create a copy for it to modify.
+    // https://www.selenium.dev/selenium/docs/api/javascript/module/selenium-webdriver/firefox.html
     .setProfile(firefoxProfilePath)
     .addArguments('-headless')
     .setPreference('general.useragent.override', 'Firefox Headless Prerender')
