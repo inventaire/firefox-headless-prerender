@@ -14,7 +14,13 @@ export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
 }
 
 export async function resetTab (driver) {
-  await driver.executeScript('window.prerenderReady = false')
+  try {
+    await driver.executeScript('window.prerenderReady = false')
+  } catch (err) {
+    console.error(err)
+    // Force a driver refresh in case the reset failed
+    delete driver._previousOrigin
+  }
 }
 
 export async function getJSON (url) {
