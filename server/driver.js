@@ -75,9 +75,17 @@ export async function getPrerenderedPage (url, refresh = false) {
     console.timeEnd(timerKey)
     const page = await pTimeout(driver.getPageSource(), { milliseconds: 10000 })
     return formatPage(page)
+  } catch (err) {
+    driver._crashed = true
+    throw err
   } finally {
-    await resetTab(driver)
-    unlockDriver(driver)
+    if (driver._crashed) {
+      driversCount--
+      populateDrivers()
+    } else {
+      await resetTab(driver)
+      unlockDriver(driver)
+    }
   }
 }
 
