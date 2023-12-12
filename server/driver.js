@@ -51,12 +51,13 @@ export async function getPrerenderedPage (url) {
     driver = await getAvailableDriver()
     const timerKey = grey(`${url} prerender (${++counter})`)
     console.time(timerKey)
-    if (driver._hasBeenUsed) {
-      const { origin } = new URL(url)
+    const { origin } = new URL(url)
+    if (driver._previousOrigin === origin) {
       const path = url.replace(origin, '')
       await driver.executeScript(`app.clearMetadataNavigateAndLoad("${path}")`)
     } else {
       await driver.get(url)
+      driver._previousOrigin = origin
     }
     await waitUntilPrerenderIsReady(driver)
     console.timeEnd(timerKey)
