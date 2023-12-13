@@ -1,8 +1,8 @@
 import { grey } from 'tiny-chalk'
 import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
-import { getPrerenderedPage } from './driver.js'
 import { setPageMetadata } from './get_page_metadata.js'
+import { getPrerenderedPage } from './prerender_page.js'
 import { rewriteUrl } from './rewrite_url.js'
 
 let counter = 0
