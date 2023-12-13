@@ -1,29 +1,21 @@
-import { grey } from 'tiny-chalk'
 import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
 import { setPageMetadata } from './get_page_metadata.js'
 import { getPrerenderedPage } from './prerender_page.js'
 import { rewriteUrl } from './rewrite_url.js'
 
-let counter = 0
-
 export async function controller (req, res) {
-  let timerKey
   try {
     const url = decodeURIComponent(req.url.slice(1))
-    console.log('GET     ', url)
+    console.log('GET      ', url)
     const urlData = new URL(url)
     const { searchParams } = urlData
     const refresh = searchParams.get('__refresh') === 'true'
     const prerenderedUrl = rewriteUrl(req, urlData)
     console.log('rewritten', prerenderedUrl)
-    timerKey = grey(`${prerenderedUrl} request [${++counter}]`)
-    console.time(timerKey)
     await prerender(res, prerenderedUrl, refresh)
   } catch (err) {
     handleError(res, err)
-  } finally {
-    console.timeEnd(timerKey)
   }
 }
 
@@ -45,6 +37,8 @@ async function prerender (res, prerenderedUrl, refresh) {
       setHeaders(res, headers)
       res.send(html)
     }
+  } else if (statusCode === 302) {
+    res.redirect(canonicalUrl)
   } else {
     setHeaders(res, headers)
     res.status(statusCode).send(html)

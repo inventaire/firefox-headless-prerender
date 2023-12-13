@@ -1,5 +1,5 @@
 import pTimeout from 'p-timeout'
-import { grey } from 'tiny-chalk'
+import { blue } from 'tiny-chalk'
 import { getAvailableDriver, unlockDriver } from './driver.js'
 import { formatPage } from './format_page.js'
 import { waitUntilPrerenderIsReady } from './helpers.js'
@@ -10,7 +10,7 @@ export async function getPrerenderedPage (url, refresh = false) {
   let driver
   try {
     driver = await getAvailableDriver()
-    const timerKey = grey(`${url} prerender (${++counter})`)
+    const timerKey = blue(`prerender ${url} [${++counter}]`)
     console.time(timerKey)
     const { origin } = new URL(url)
     if (!refresh && driver._previousOrigin === origin) {
