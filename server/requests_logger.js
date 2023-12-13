@@ -23,13 +23,24 @@ const logLine = (req, res) => {
   // for instance when tests timeout
   const interrupted = finished ? '' : ` ${yellow}CLOSED BEFORE FINISHING`
 
-  const line = `${grey}${method.padEnd(preUrlPadding - 2)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
+  let line = `${grey}${method.padEnd(preUrlPadding - 2)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
+  for (const headerName of loggedHeaders) {
+    const value = req.get(headerName)
+    if (value) line += ` | ${headerName}: ${value}`
+  }
   console.log(`${line}${resetColors}`)
   if (status === 302) {
     const location = res.get('location')
     console.log(`${grey}${''.padEnd(preUrlPadding - 3)}=> ${location}${resetColors}`)
   }
 }
+
+const loggedHeaders = [
+  'user-agent',
+  'forwarded',
+  'x-forwarded-for',
+  'x-real-ip',
+]
 
 // Using escape codes rather than chalk to save a few characters per line
 const escape = '\x1b['
