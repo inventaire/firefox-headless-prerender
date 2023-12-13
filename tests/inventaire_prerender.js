@@ -7,7 +7,7 @@ const { inventaireOrigin } = CONFIG.tests
 describe('inventaire prerender', () => {
   it('should get a user profile metadata', async () => {
     const username = 'adamsberg'
-    const { title, links, metatags, lang } = await getPageMetadata(`/users/${username}`)
+    const { title, links, metatags, lang } = await getPageMetadata(`/users/${username}?lang=en`)
     should(title).startWith(username)
     should(title).endWith('- Inventaire')
     should(links.canonical[0]).equal(`${inventaireOrigin}/users/${username}?lang=en`)
@@ -17,6 +17,19 @@ describe('inventaire prerender', () => {
 
   it('should get a user profile in the desired lang', async () => {
     const { links, lang } = await getPageMetadata('/users/adamsberg?lang=fr')
+    should(links.canonical[0]).equal(`${inventaireOrigin}/users/adamsberg?lang=fr`)
+    should(lang).equal('fr')
+  })
+
+  it('should default to English', async () => {
+    const { statusCode, headers } = await getPageMetadata('/users/adamsberg')
+    should(statusCode).equal(302)
+    should(headers.location).equal(`${inventaireOrigin}/users/adamsberg?lang=en`)
+  })
+
+  it('should support escaped url', async () => {
+    const { statusCode, links, lang } = await getPageMetadata('/users/adamsberg%3Flang=fr')
+    should(statusCode).equal(200)
     should(links.canonical[0]).equal(`${inventaireOrigin}/users/adamsberg?lang=fr`)
     should(lang).equal('fr')
   })

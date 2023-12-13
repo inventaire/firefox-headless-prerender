@@ -9,31 +9,30 @@ const { preUrlPadding } = CONFIG.logs
 
 export async function controller (req, res) {
   try {
-    const url = decodeURIComponent(req.url.slice(1))
-    console.log('GET'.padEnd(preUrlPadding), url)
-    const urlData = new URL(url)
+    let requestedUrl = decodeURIComponent(req.url.slice(1))
+    console.log('GET'.padEnd(preUrlPadding), requestedUrl)
+    const urlData = new URL(requestedUrl)
     const { searchParams } = urlData
     const refresh = searchParams.get('__refresh') === 'true'
+    if (refresh) requestedUrl = requestedUrl.replace('__refresh=true', '')
     const prerenderedUrl = rewriteUrl(req, urlData)
     console.log('rewritten'.padEnd(preUrlPadding), prerenderedUrl)
-    await prerender(res, prerenderedUrl, refresh)
+    await prerender({ res, prerenderedUrl, requestedUrl, refresh })
   } catch (err) {
     handleError(res, err)
   }
 }
 
-async function prerender (res, prerenderedUrl, refresh) {
+async function prerender ({ res, prerenderedUrl, requestedUrl, refresh }) {
   const earlyRedirection = await getRedirection(prerenderedUrl)
   if (earlyRedirection) {
     res.redirect(earlyRedirection)
     return
   }
-
   const rawHtml = await getCachedOrPrerenderedPage(prerenderedUrl, refresh)
   const { statusCode, html, headers, canonicalUrl } = setPageMetadata(rawHtml)
-
   if (statusCode === 200) {
-    if (canonicalUrl !== prerenderedUrl) {
+    if (canonicalUrl !== requestedUrl) {
       res.redirect(canonicalUrl)
     } else {
       res.setHeader('Content-Type', 'text/html; charset=utf-8')

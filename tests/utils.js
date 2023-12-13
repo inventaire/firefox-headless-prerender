@@ -9,13 +9,12 @@ const { inventaireOrigin } = CONFIG.tests
 const prerenderOrigin = `${protocol}://localhost:${port}`
 
 export async function getPage (pathname) {
-  let [ path, query ] = pathname.split('?')
-  if (query) {
-    query += '&__refresh=true'
+  if (pathname.includes('?') || pathname.includes('%3F')) {
+    pathname += '&__refresh=true'
   } else {
-    query = '__refresh=true'
+    pathname += '?__refresh=true'
   }
-  const invUrl = `${inventaireOrigin}${path}?${query}`
+  const invUrl = `${inventaireOrigin}${pathname}`
   const res = await fetch(`${prerenderOrigin}/${invUrl}`, { redirect: 'manual' })
   const text = await res.text()
   const pageData = { body: text, statusCode: res.status, headers: Object.fromEntries(res.headers.entries()) }
