@@ -5,9 +5,9 @@ import pTimeout from 'p-timeout'
 import { Builder } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox.js'
 import { grey } from 'tiny-chalk'
-import { formatPage } from './lib/format_page.js'
-import { resetTab, waitUntilPrerenderIsReady } from './lib/helpers.js'
-import { getQueueLength, joinQueue, shiftQueue } from './lib/queue.js'
+import { formatPage } from './format_page.js'
+import { resetTab, waitUntilPrerenderIsReady } from './helpers.js'
+import { getQueueLength, joinQueue, shiftQueue } from './queue.js'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
 console.log({ maxDrivers, firefoxProfilePath })

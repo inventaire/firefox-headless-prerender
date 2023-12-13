@@ -1,4 +1,4 @@
-// Largely inspired by https://github.com/prerender/prerender/blob/478fa6d/lib/plugins/httpHeaders.js
+// Largely inspired by https://github.com/prerender/prerender/blob/478fa6d/plugins/httpHeaders.js
 
 import he from 'he'
 
