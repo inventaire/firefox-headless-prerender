@@ -7,16 +7,12 @@ const { preUrlPadding } = CONFIG.logs
 export function requestsLogger (req, res, next) {
   req._startAt = process.hrtime()
 
-  res.on('close', () => {
-    const line = format(req, res)
-    if (line == null) return
-    console.log(`${line}`)
-  })
+  res.on('close', () => logLine(req, res))
 
   next()
 }
-const format = (req, res) => {
-  const { method, originalUrl: url, user } = req
+const logLine = (req, res) => {
+  const { method, originalUrl: url } = req
   const { statusCode: status, finished } = res
 
   const color = statusCategoryColor[status.toString()[0]]
@@ -27,11 +23,12 @@ const format = (req, res) => {
   // for instance when tests timeout
   const interrupted = finished ? '' : ` ${yellow}CLOSED BEFORE FINISHING`
 
-  let line = `${grey}${method.padEnd(preUrlPadding - 1)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
-
-  if (user) line += ` - u:${user._id}`
-
-  return `${line}${resetColors}`
+  const line = `${grey}${method.padEnd(preUrlPadding - 2)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
+  console.log(`${line}${resetColors}`)
+  if (status === 302) {
+    const location = res.get('location')
+    console.log(`${grey}${''.padEnd(preUrlPadding - 3)}=> ${location}${resetColors}`)
+  }
 }
 
 // Using escape codes rather than chalk to save a few characters per line
