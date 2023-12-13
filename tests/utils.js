@@ -16,13 +16,21 @@ export async function getPage (pathname) {
     query = '__refresh=true'
   }
   const invUrl = `${inventaireOrigin}${path}?${query}`
-  const html = await fetch(`${prerenderOrigin}/${invUrl}`).then(res => res.text())
-  return html
+  const res = await fetch(`${prerenderOrigin}/${invUrl}`, { redirect: 'manual' })
+  const text = await res.text()
+  const pageData = { body: text, statusCode: res.status, headers: Object.fromEntries(res.headers.entries()) }
+  if (pageData.statusCode >= 400) {
+    const err = new Error('request error')
+    err.context = pageData
+    throw err
+  } else {
+    return pageData
+  }
 }
 
 export async function getPageMetadata (pathname) {
-  const html = await getPage(pathname)
-  return parseHtml(html)
+  const { body: html, statusCode, headers } = await getPage(pathname)
+  return { statusCode, headers, ...parseHtml(html) }
 }
 
 function parseHtml (html) {
