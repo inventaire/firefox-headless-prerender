@@ -1,8 +1,11 @@
+import CONFIG from 'config'
 import pTimeout from 'p-timeout'
 import { blue } from 'tiny-chalk'
 import { getAvailableDriver, unlockDriver } from './driver.js'
 import { formatPage } from './format_page.js'
 import { waitUntilPrerenderIsReady } from './helpers.js'
+
+const { preUrlPadding } = CONFIG
 
 let counter = 0
 
@@ -10,7 +13,7 @@ export async function getPrerenderedPage (url, refresh = false) {
   let driver
   try {
     driver = await getAvailableDriver()
-    const timerKey = blue(`prerender ${url} [${++counter}]`)
+    const timerKey = blue(`${'prerender'.padEnd(preUrlPadding)} ${url} [${++counter}]`)
     console.time(timerKey)
     const { origin } = new URL(url)
     if (!refresh && driver._previousOrigin === origin) {

@@ -3,6 +3,8 @@ import CONFIG from 'config'
 import level from 'level-party'
 import ttl from 'level-ttl'
 
+const { preUrlPadding } = CONFIG.logs
+
 const { enabled, ttl: defaultTTL } = CONFIG.cache
 const db = ttl(level('./db'), { defaultTTL })
 const dbPut = promisify(db.put)
@@ -11,11 +13,11 @@ export async function getCachedPage (url) {
   if (!enabled) return
   try {
     const html = await db.get(url)
-    console.log('cache hit', url)
+    console.log('cache hit'.padEnd(preUrlPadding), url)
     return html
   } catch (err) {
     if (err.name === 'NotFoundError') {
-      console.log('cache miss', url)
+      console.log('cache miss'.padEnd(preUrlPadding), url)
     } else {
       throw err
     }

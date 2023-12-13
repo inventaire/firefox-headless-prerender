@@ -1,18 +1,21 @@
+import CONFIG from 'config'
 import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
 import { setPageMetadata } from './get_page_metadata.js'
 import { getPrerenderedPage } from './prerender_page.js'
 import { rewriteUrl } from './rewrite_url.js'
 
+const { preUrlPadding } = CONFIG.logs
+
 export async function controller (req, res) {
   try {
     const url = decodeURIComponent(req.url.slice(1))
-    console.log('GET      ', url)
+    console.log('GET'.padEnd(preUrlPadding), url)
     const urlData = new URL(url)
     const { searchParams } = urlData
     const refresh = searchParams.get('__refresh') === 'true'
     const prerenderedUrl = rewriteUrl(req, urlData)
-    console.log('rewritten', prerenderedUrl)
+    console.log('rewritten'.padEnd(preUrlPadding), prerenderedUrl)
     await prerender(res, prerenderedUrl, refresh)
   } catch (err) {
     handleError(res, err)

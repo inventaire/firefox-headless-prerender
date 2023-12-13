@@ -1,4 +1,7 @@
+import CONFIG from 'config'
 import chalk from 'tiny-chalk'
+
+const { preUrlPadding } = CONFIG.logs
 
 // Adapted from https://github.com/expressjs/morgan 1.1.1
 export function requestsLogger (req, res, next) {
@@ -24,7 +27,7 @@ const format = (req, res) => {
   // for instance when tests timeout
   const interrupted = finished ? '' : ` ${yellow}CLOSED BEFORE FINISHING`
 
-  let line = `${grey}${method.padEnd(8)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
+  let line = `${grey}${method.padEnd(preUrlPadding - 1)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
 
   if (user) line += ` - u:${user._id}`
 

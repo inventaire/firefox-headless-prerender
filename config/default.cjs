@@ -9,6 +9,7 @@ module.exports = {
   },
   logs: {
     timestamps: false,
+    preUrlPadding: 10,
   },
   tests: {
     inventaireOrigin: 'http://localhost:3005',
