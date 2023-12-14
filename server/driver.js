@@ -12,6 +12,7 @@ mkdirSync(firefoxProfilePath, { recursive: true })
 
 let driversCount = 0
 const idleDrivers = []
+const allDrivers = new Set()
 
 export async function getAvailableDriver () {
   const idleDriver = idleDrivers.shift()
@@ -24,6 +25,8 @@ export async function unlockDriver (driver) {
   if (driver._crashed) {
     driversCount--
     populateDrivers()
+    await quitDriver(driver)
+    allDrivers.delete(driver)
   } else {
     await resetTab(driver)
     idleDrivers.push(driver)
@@ -55,6 +58,7 @@ async function getNewDriver () {
 async function populateDrivers () {
   if (driversCount < maxDrivers) {
     const driver = await getNewDriver()
+    allDrivers.add(driver)
     driversCount++
     idleDrivers.push(driver)
     shiftQueue()
@@ -70,3 +74,23 @@ async function buildupDrivers () {
 }
 
 buildupDrivers()
+
+async function handleExit () {
+  if (allDrivers.size > 0) {
+    console.log(`Cleaning up ${allDrivers.size} drivers`)
+    await Promise.all(Array.from(allDrivers).map(quitDriver))
+  }
+  process.exit(0)
+}
+
+async function quitDriver (driver) {
+  try {
+    await driver.quit()
+  } catch (err) {
+    console.error('error while quitting driver:', err)
+  }
+}
+
+process.on('SIGINT', handleExit)
+process.on('SIGTERM', handleExit)
+process.on('SIGHUP', handleExit)
