@@ -43,6 +43,12 @@ describe('inventaire prerender', () => {
     should(headers.location).equal(`${inventaireOrigin}/welcome?lang=en`)
   })
 
+  it('should show the home page', async () => {
+    const { statusCode, html } = await getPageMetadata('/welcome?lang=en')
+    should(statusCode).equal(200)
+    should(html).containEql('Keep an inventory of your books')
+  })
+
   it('should support escaped url', async () => {
     const { statusCode, links, lang } = await getPageMetadata('/users/adamsberg%3Flang=fr')
     should(statusCode).equal(200)

@@ -30,7 +30,7 @@ export async function getPage (pathname) {
 
 export async function getPageMetadata (pathname) {
   const { body: html, statusCode, headers } = await getPage(pathname)
-  const res = { statusCode, headers, ...parseHtml(html) }
+  const res = { statusCode, headers, html, ...parseHtml(html) }
   // console.log('page metadata', res)
   return res
 }
