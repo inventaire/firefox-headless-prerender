@@ -34,6 +34,16 @@ export async function getPrerenderedPage (url, refresh = false) {
     return formatPage(page)
   } catch (err) {
     driver._crashed = true
+    if (err.name === 'WebDriverError' && err.message.includes('about:neterror')) {
+      const errorData = new URLSearchParams(err.message.split('about:neterror?')[1])
+      const errMessage = errorData.get('d')
+      if (errMessage) {
+        const err2 = new Error(errMessage)
+        err2.context = Object.fromEntries(errorData)
+        err2.cause = err
+        throw err2
+      }
+    }
     throw err
   } finally {
     await unlockDriver(driver)
