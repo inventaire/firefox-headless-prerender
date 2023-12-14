@@ -33,13 +33,9 @@ async function prerender ({ res, prerenderedUrl, requestedUrl, refresh }) {
   const rawHtml = await getCachedOrPrerenderedPage(res, prerenderedUrl, refresh)
   const { statusCode, html, headers, canonicalUrl } = setPageMetadata(rawHtml)
   if (statusCode === 200) {
-    if (canonicalUrl !== requestedUrl) {
-      res.redirect(canonicalUrl)
-    } else {
-      res.setHeader('Content-Type', 'text/html; charset=utf-8')
-      setHeaders(res, headers)
-      res.send(html)
-    }
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    setHeaders(res, headers)
+    res.send(html)
   } else if (statusCode === 302) {
     res.redirect(canonicalUrl)
   } else {

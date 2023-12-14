@@ -24,9 +24,9 @@ describe('inventaire prerender', () => {
   })
 
   it('should default to English', async () => {
-    const { statusCode, headers } = await getPageMetadata('/users/adamsberg')
-    should(statusCode).equal(302)
-    should(headers.location).equal(`${inventaireOrigin}/users/adamsberg?lang=en`)
+    const { statusCode, links } = await getPageMetadata('/users/adamsberg')
+    should(statusCode).equal(200)
+    should(links.canonical[0]).equal(`${inventaireOrigin}/users/adamsberg?lang=en`)
   })
 
   it('should return 404 on unknown pages', async () => {
@@ -47,6 +47,16 @@ describe('inventaire prerender', () => {
     const { statusCode, html } = await getPageMetadata('/welcome?lang=en')
     should(statusCode).equal(200)
     should(html).containEql('Keep an inventory of your books')
+  })
+
+  it('should not redirect to the explicit lang page if the language header is set', async () => {
+    const { statusCode, links } = await getPageMetadata('/welcome', {
+      headers: {
+        'accept-language': 'fr',
+      },
+    })
+    should(statusCode).equal(200)
+    should(links.canonical[0]).equal(`${inventaireOrigin}/welcome?lang=fr`)
   })
 
   it('should support escaped url', async () => {
@@ -137,20 +147,20 @@ describe('inventaire prerender', () => {
       should(lang).equal('fr')
     })
 
-    it('should redirect to prefixed entity layout', async () => {
+    it('should set canonical link for prefixed entity layout', async () => {
       const id = 'Q3656893'
       const uri = `wd:${id}`
       const res = await getPageMetadata(`/entity/${id}?lang=fr`)
-      const { statusCode, headers } = res
-      should(statusCode).equal(302)
-      should(headers.location).equal(`${inventaireOrigin}/entity/${uri}?lang=fr`)
+      const { statusCode, links } = res
+      should(statusCode).equal(200)
+      should(links.canonical[0]).equal(`${inventaireOrigin}/entity/${uri}?lang=fr`)
     })
 
-    it('should redirect to property-prefixed claim list', async () => {
+    it('should set canonical link for property-prefixed', async () => {
       const uri = 'wd:Q11473'
-      const { statusCode, headers } = await getPageMetadata(`/entity/${uri}?lang=fr`)
-      should(statusCode).equal(302)
-      should(headers.location).equal(`${inventaireOrigin}/entity/wdt:P921-${uri}?lang=fr`)
+      const { statusCode, links } = await getPageMetadata(`/entity/${uri}?lang=fr`)
+      should(statusCode).equal(200)
+      should(links.canonical[0]).equal(`${inventaireOrigin}/entity/wdt:P921-${uri}?lang=fr`)
     })
   })
 })

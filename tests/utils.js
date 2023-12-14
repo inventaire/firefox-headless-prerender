@@ -8,14 +8,15 @@ const { protocol, port } = CONFIG
 const { inventaireOrigin } = CONFIG.tests
 const prerenderOrigin = `${protocol}://localhost:${port}`
 
-export async function getPage (pathname) {
+export async function getPage (pathname, options = {}) {
   if (pathname.includes('?') || pathname.includes('%3F')) {
     pathname += '&__refresh=true'
   } else {
     pathname += '?__refresh=true'
   }
   const invUrl = `${inventaireOrigin}${pathname}`
-  const res = await fetch(`${prerenderOrigin}/${invUrl}`, { redirect: 'manual' })
+  options.redirect ??= 'manual'
+  const res = await fetch(`${prerenderOrigin}/${invUrl}`, options)
   const text = await res.text()
   const pageData = { body: text, statusCode: res.status, headers: Object.fromEntries(res.headers.entries()) }
   if (pageData.statusCode >= 400) {
@@ -28,8 +29,8 @@ export async function getPage (pathname) {
   }
 }
 
-export async function getPageMetadata (pathname) {
-  const { body: html, statusCode, headers } = await getPage(pathname)
+export async function getPageMetadata (pathname, options) {
+  const { body: html, statusCode, headers } = await getPage(pathname, options)
   const res = { statusCode, headers, html, ...parseHtml(html) }
   // console.log('page metadata', res)
   return res
