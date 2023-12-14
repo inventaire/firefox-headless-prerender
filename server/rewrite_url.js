@@ -1,7 +1,7 @@
 // Removing query parameters specific to prerendering
 // so that cached values can be shared
 
-const omitParameters = [
+const ignoredParameters = [
   '__nojs',
   '__refresh',
   // Used by agent=sentinel
@@ -9,16 +9,20 @@ const omitParameters = [
   '_escaped_fragment_',
 ]
 
+/**
+ * @param {URL} urlData
+ */
+export function dropIgnoredParameters (urlData) {
+  for (const parameter of ignoredParameters) {
+    urlData.searchParams.delete(parameter)
+  }
+}
+
 // Keep in sync with keys from https://raw.githubusercontent.com/inventaire/inventaire-i18n/dist/dist/languages_data.js
 const supportedLanguages = new Set([ 'ar', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en', 'eo', 'es', 'fr', 'hu', 'id', 'it', 'ja', 'nb', 'nl', 'pa', 'pl', 'pt', 'ro', 'ru', 'sk', 'sv', 'tr', 'uk' ])
 
-export function rewriteUrl (req, urlData) {
-  const { origin, pathname, searchParams: query } = urlData
-  const path = `${origin}${pathname}`
-
-  for (const parameter of omitParameters) {
-    query.delete(parameter)
-  }
+export function getPrerenderedUrl (req, urlData) {
+  const { searchParams: query } = urlData
 
   if (!query.has('lang')) {
     const headersLang = getLangFromHeaders(req.headers['accept-language'])
@@ -26,13 +30,10 @@ export function rewriteUrl (req, urlData) {
     else query.set('lang', 'en')
   }
 
-  const updatedQueryString = query.toString()
-
-  if (updatedQueryString.length === 0) return path
-  else return `${path}?${updatedQueryString}`
+  return urlData.toString()
 }
 
-const getLangFromHeaders = acceptedLanguages => {
+function getLangFromHeaders (acceptedLanguages) {
   if (!acceptedLanguages || acceptedLanguages.length === 0) return
 
   const preferredLangs = acceptedLanguages

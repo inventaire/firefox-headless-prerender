@@ -3,7 +3,7 @@ import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
 import { setPageMetadata } from './get_page_metadata.js'
 import { getPrerenderedPage } from './prerender_page.js'
-import { rewriteUrl } from './rewrite_url.js'
+import { dropIgnoredParameters, getPrerenderedUrl } from './rewrite_url.js'
 
 const { preUrlPadding } = CONFIG.logs
 
@@ -14,8 +14,9 @@ export async function controller (req, res) {
     const urlData = new URL(requestedUrl)
     const { searchParams } = urlData
     const refresh = searchParams.get('__refresh') === 'true'
-    if (refresh) requestedUrl = requestedUrl.replace('__refresh=true', '')
-    const prerenderedUrl = rewriteUrl(req, urlData)
+    dropIgnoredParameters(urlData)
+    requestedUrl = urlData.toString()
+    const prerenderedUrl = getPrerenderedUrl(req, urlData)
     console.log('rewritten'.padEnd(preUrlPadding), prerenderedUrl)
     await prerender({ res, prerenderedUrl, requestedUrl, refresh })
   } catch (err) {

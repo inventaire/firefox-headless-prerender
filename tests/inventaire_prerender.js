@@ -5,9 +5,11 @@ import { getPageMetadata, shouldNotBeCalled } from './utils.js'
 const { inventaireOrigin } = CONFIG.tests
 
 describe('inventaire prerender', () => {
+  // Assumes a user named adamsberg exist on the tested Inventaire instance
   it('should get a user profile metadata', async () => {
     const username = 'adamsberg'
-    const { title, links, metatags, lang } = await getPageMetadata(`/users/${username}?lang=en`)
+    const { statusCode, title, links, metatags, lang } = await getPageMetadata(`/users/${username}?lang=en`)
+    should(statusCode).equal(200)
     should(title).startWith(username)
     should(title).endWith('- Inventaire')
     should(links.canonical[0]).equal(`${inventaireOrigin}/users/${username}?lang=en`)
@@ -48,9 +50,10 @@ describe('inventaire prerender', () => {
     should(lang).equal('fr')
   })
 
+  // Assumes a group named hello exist on the tested Inventaire instance
   it('should get a group profile metadata', async () => {
     const name = 'hello'
-    const { title, links, lang } = await getPageMetadata(`/groups/${name}`)
+    const { title, links, lang } = await getPageMetadata(`/groups/${name}?lang=en`)
     should(title).startWith(name)
     should(title).endWith('- Inventaire')
     should(links.canonical[0]).equal(`${inventaireOrigin}/groups/${name}?lang=en`)
@@ -60,7 +63,7 @@ describe('inventaire prerender', () => {
   describe('entities', () => {
     it('should get an author entity layout metadata', async () => {
       const uri = 'wd:Q1345582'
-      const { title, links, lang } = await getPageMetadata(`/entity/${uri}`)
+      const { title, links, lang } = await getPageMetadata(`/entity/${uri}?lang=en`)
       should(title).containEql('Simondon')
       should(title).match(/- Author - /)
       should(title).endWith('- Inventaire')
