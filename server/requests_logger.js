@@ -23,7 +23,7 @@ const logLine = (req, res) => {
   // for instance when tests timeout
   const interrupted = finished ? '' : ` ${yellow}CLOSED BEFORE FINISHING`
 
-  let line = `${grey}${method.padEnd(preUrlPadding - 2)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
+  let line = `${grey}${method.padEnd(preUrlPadding - 1)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
   for (const headerName of loggedHeaders) {
     const value = req.get(headerName)
     if (value) line += ` | ${headerName}: ${value}`

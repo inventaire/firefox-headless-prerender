@@ -13,7 +13,7 @@ export async function getPrerenderedPage (url, refresh = false) {
   let driver
   try {
     driver = await getAvailableDriver()
-    const timerKey = blue(`${'prerender'.padEnd(preUrlPadding)} ${url} [${++counter}]`)
+    const timerKey = blue(`prerender  ${url} [${++counter}]`)
     console.time(timerKey)
     const { origin } = new URL(url)
     if (!refresh && driver._previousOrigin === origin) {
