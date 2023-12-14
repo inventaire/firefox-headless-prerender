@@ -30,7 +30,7 @@ async function prerender ({ res, prerenderedUrl, requestedUrl, refresh }) {
     res.redirect(earlyRedirection)
     return
   }
-  const rawHtml = await getCachedOrPrerenderedPage(prerenderedUrl, refresh)
+  const rawHtml = await getCachedOrPrerenderedPage(res, prerenderedUrl, refresh)
   const { statusCode, html, headers, canonicalUrl } = setPageMetadata(rawHtml)
   if (statusCode === 200) {
     if (canonicalUrl !== requestedUrl) {
@@ -51,12 +51,12 @@ async function prerender ({ res, prerenderedUrl, requestedUrl, refresh }) {
 /**
  * @param {string} prerenderedUrl
  */
-async function getCachedOrPrerenderedPage (prerenderedUrl, refresh) {
+async function getCachedOrPrerenderedPage (res, prerenderedUrl, refresh) {
   if (!refresh) {
     const cachedPageData = await getCachedPage(prerenderedUrl)
     if (cachedPageData) return cachedPageData
   }
-  const html = await getPrerenderedPage(prerenderedUrl, refresh)
+  const html = await getPrerenderedPage(res, prerenderedUrl, refresh)
   populateCache(prerenderedUrl, html)
   return html
 }

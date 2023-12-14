@@ -3,16 +3,27 @@ import pTimeout from 'p-timeout'
 import { blue } from 'tiny-chalk'
 import { getAvailableDriver, unlockDriver } from './driver.js'
 import { formatPage } from './format_page.js'
-import { waitUntilPrerenderIsReady } from './helpers.js'
+import { wait, waitUntilPrerenderIsReady } from './helpers.js'
 
 const { preUrlPadding } = CONFIG
 
 let counter = 0
 
-export async function getPrerenderedPage (url, refresh = false) {
+/**
+ * @param {Response} res
+ * @param {string} url
+ * @param {boolean} refresh
+ */
+export async function getPrerenderedPage (res, url, refresh = false) {
   let driver
   try {
+    await wait(500)
     driver = await getAvailableDriver()
+    if (res.interrupted) {
+      const err = new Error('http response has been interrupted: skip prerendering')
+      err.name = 'Interrupted'
+      throw err
+    }
     const timerKey = blue(`prerender  ${url} [${++counter}]`)
     console.time(timerKey)
     const { origin } = new URL(url)
@@ -33,7 +44,7 @@ export async function getPrerenderedPage (url, refresh = false) {
     const page = await pTimeout(driver.getPageSource(), { milliseconds: 10000 })
     return formatPage(page)
   } catch (err) {
-    driver._crashed = true
+    if (err.name !== 'Interrupted') driver._crashed = true
     if (err.name === 'WebDriverError' && err.message.includes('about:neterror')) {
       const errorData = new URLSearchParams(err.message.split('about:neterror?')[1])
       const errMessage = errorData.get('d')

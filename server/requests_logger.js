@@ -22,6 +22,7 @@ const logLine = (req, res) => {
   // Interruption typically happen when the client closes the request,
   // for instance when tests timeout
   const interrupted = finished ? '' : ` ${yellow}CLOSED BEFORE FINISHING`
+  res.interrupted = true
 
   let line = `${grey}${method.padEnd(preUrlPadding - 1)} ${url} ${color}${status}${interrupted} ${grey}${coloredElapsedTime(req._startAt)}${grey}`
   for (const headerName of loggedHeaders) {
