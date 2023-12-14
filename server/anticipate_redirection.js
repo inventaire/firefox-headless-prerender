@@ -6,13 +6,17 @@
 
 // import { getJSON } from './helpers.js'
 
+const home = '/welcome'
+
 export async function getRedirection (url) {
   const { origin, pathname, searchParams } = new URL(url)
 
   const [ part1, part2, part3 ] = pathname.slice(1).split('/')
   let redirection
 
-  if (loggedInSections.has(part1)) {
+  if (!part1) {
+    redirection = home
+  } else if (loggedInSections.has(part1)) {
     redirection = '/login'
   } else if (loggedInSubSections[part1] != null && loggedInSubSections[part1].has(part2)) {
     redirection = '/login'
@@ -26,11 +30,13 @@ export async function getRedirection (url) {
   } else if (part1 === 'search') {
     searchParams.delete('q')
     // Search pages just create dupplicated content, redirect to the home page
-    redirection = '/'
+    redirection = home
   }
 
+  if (!searchParams.get('lang')) searchParams.set('lang', 'en')
+
   let search = searchParams.toString()
-  if (search.length > 0) search = `?${search}`
+  search = `?${search}`
 
   if (redirection) return `${origin}${redirection}${search}`
 }

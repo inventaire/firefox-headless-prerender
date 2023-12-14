@@ -1,6 +1,6 @@
 import CONFIG from 'config'
 import should from 'should'
-import { getPageMetadata } from './utils.js'
+import { getPageMetadata, shouldNotBeCalled } from './utils.js'
 
 const { inventaireOrigin } = CONFIG.tests
 
@@ -25,6 +25,20 @@ describe('inventaire prerender', () => {
     const { statusCode, headers } = await getPageMetadata('/users/adamsberg')
     should(statusCode).equal(302)
     should(headers.location).equal(`${inventaireOrigin}/users/adamsberg?lang=en`)
+  })
+
+  it('should return 404 on unknown pages', async () => {
+    await getPageMetadata('/foo')
+    .then(shouldNotBeCalled)
+    .catch(err => {
+      should(err.statusCode).equal(404)
+    })
+  })
+
+  it('should redirect / to /welcome', async () => {
+    const { statusCode, headers } = await getPageMetadata('/')
+    should(statusCode).equal(302)
+    should(headers.location).equal(`${inventaireOrigin}/welcome?lang=en`)
   })
 
   it('should support escaped url', async () => {

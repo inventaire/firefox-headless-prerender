@@ -21,6 +21,7 @@ export async function getPage (pathname) {
   if (pageData.statusCode >= 400) {
     const err = new Error('request error')
     err.context = pageData
+    err.statusCode = pageData.statusCode
     throw err
   } else {
     return pageData
@@ -54,4 +55,13 @@ const parseElement = (obj, attributes, valueKey) => (index, element) => {
     obj[name].push(value)
   }
   return obj
+}
+
+export function shouldNotBeCalled (res) {
+  console.warn(inspect(res, false, null), 'undesired positive res')
+  const err = new Error('function was expected not to be called')
+  // Give 'shouldNotBeCalled' more chance to appear in the red text of the failing test
+  err.name = err.statusCode = 'shouldNotBeCalled'
+  err.context = { res }
+  throw err
 }
