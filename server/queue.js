@@ -1,4 +1,7 @@
+import CONFIG from 'config'
 import { yellow } from 'tiny-chalk'
+
+const { maxDrivers } = CONFIG
 
 // Source: http://bluebirdjs.com/docs/api/deferred-migration.html
 export function defer () {
@@ -50,6 +53,10 @@ export function shiftQueue () {
 
 export function getQueueLength () {
   return queue.length
+}
+
+export function queueOverflows () {
+  return queue.length > (maxDrivers * 2)
 }
 
 setInterval(() => {

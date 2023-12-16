@@ -65,15 +65,9 @@ async function populateDrivers () {
   }
 }
 
-async function buildupDrivers () {
-  const queueLength = getQueueLength()
-  if (queueLength > 0) await populateDrivers()
-  if (driversCount < maxDrivers) {
-    setTimeout(buildupDrivers, 500)
-  }
+while (driversCount < maxDrivers) {
+  await populateDrivers()
 }
-
-buildupDrivers()
 
 async function handleExit () {
   if (allDrivers.size > 0) {

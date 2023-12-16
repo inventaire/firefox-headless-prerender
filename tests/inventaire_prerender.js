@@ -1,6 +1,7 @@
 import CONFIG from 'config'
 import should from 'should'
-import { getPageMetadata, shouldNotBeCalled } from './utils.js'
+import { wait } from '../server/helpers.js'
+import { getPageMetadata, getRandomInteger, getRandomString, pluck, shouldNotBeCalled } from './utils.js'
 
 const { inventaireOrigin } = CONFIG.tests
 
@@ -161,6 +162,27 @@ describe('inventaire prerender', () => {
       const { statusCode, links } = await getPageMetadata(`/entity/${uri}?lang=fr`)
       should(statusCode).equal(200)
       should(links.canonical[0]).equal(`${inventaireOrigin}/entity/wdt:P921-${uri}?lang=fr`)
+    })
+  })
+
+  describe('throttling', () => {
+    it('should reject when too many request from the same forwarded ip', async () => {
+      const promises = []
+      let i = 0
+      while (i++ < 10) {
+        promises.push(getPageMetadata(`/users/${getRandomString()}`, {
+          noThrowOnHttpStatusError: true,
+          headers: {
+            // The rightmost IP address is the IP address of the most recent proxy
+            // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-For#security_and_privacy_concerns
+            'x-forwarded-for': `${getRandomInteger(0, 255)}.0.0.0, 256.0.0.0`,
+          },
+        }))
+      }
+      const res = await Promise.all(promises)
+      const statusCodes = pluck(res, 'statusCode')
+      should(statusCodes[0]).equal(404)
+      should(statusCodes.at(-1)).equal(429)
     })
   })
 })

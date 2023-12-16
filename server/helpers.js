@@ -27,3 +27,7 @@ export async function getJSON (url) {
   const res = await fetch(url)
   return res.json()
 }
+
+export function getReqIp (req) {
+  return req.get('x-forwarded-for')?.split(/,\s*/).at(-1)
+}

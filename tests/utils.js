@@ -1,6 +1,8 @@
+import { randomBytes } from 'node:crypto'
 import { inspect } from 'node:util'
 import * as cheerio from 'cheerio'
 import CONFIG from 'config'
+import { wait } from '../server/helpers.js'
 
 inspect.defaultOptions.depth = null
 
@@ -15,11 +17,12 @@ export async function getPage (pathname, options = {}) {
     pathname += '?__refresh=true'
   }
   const invUrl = `${inventaireOrigin}${pathname}`
+  const { noThrowOnHttpStatusError = false } = options
   options.redirect ??= 'manual'
   const res = await fetch(`${prerenderOrigin}/${invUrl}`, options)
   const text = await res.text()
   const pageData = { body: text, statusCode: res.status, headers: Object.fromEntries(res.headers.entries()) }
-  if (pageData.statusCode >= 400) {
+  if (pageData.statusCode >= 400 && !noThrowOnHttpStatusError) {
     const err = new Error('request error')
     err.context = pageData
     err.statusCode = pageData.statusCode
@@ -67,4 +70,19 @@ export function shouldNotBeCalled (res) {
   err.name = err.statusCode = 'shouldNotBeCalled'
   err.context = { res }
   throw err
+}
+
+export function getRandomString (length = 10) {
+  return randomBytes(length * 2)
+  .toString('base64')
+  .replace(/\W/g, '')
+  .slice(0, 10)
+}
+
+export function getRandomInteger (from, to) {
+  return from + Math.round(Math.random() * (to - from))
+}
+
+export function pluck (arr, attribute) {
+  return arr.map(el => el[attribute])
 }
