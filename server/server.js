@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { createServer as createHttpServer } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
 import CONFIG from 'config'
+import timeout from 'connect-timeout'
 import express from 'express'
 import { blue } from 'tiny-chalk'
 import { controller } from './controller.js'
@@ -14,6 +15,7 @@ initTimestampPrefixedLogs()
 
 const app = express()
 app.use(requestsLogger)
+app.use(timeout('30s'))
 app.get('*', controller)
 
 const args = []
