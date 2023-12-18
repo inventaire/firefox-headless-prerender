@@ -1,4 +1,5 @@
 import CONFIG from 'config'
+import { yellow } from 'tiny-chalk'
 import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
 import { setPageMetadata } from './get_page_metadata.js'
@@ -16,6 +17,7 @@ export async function controller (req, res) {
   const reqIp = getReqIp(req)
   ongoingRequestsIps[reqIp] ??= 0
   ongoingRequestsIps[reqIp]++
+  if (!reqIp) console.warn(yellow('no reqIp found'))
   try {
     const tooManyRequests = ongoingRequestsIps[reqIp] > maxDrivers || (ongoingRequestsIps[reqIp] > 1 && queueOverflows())
     if (tooManyRequests) {
