@@ -6,11 +6,10 @@ const { preUrlPadding } = CONFIG.logs
 // Adapted from https://github.com/expressjs/morgan 1.1.1
 export function requestsLogger (req, res, next) {
   req._startAt = process.hrtime()
-
   res.on('close', () => logLine(req, res))
-
   next()
 }
+
 const logLine = (req, res) => {
   const { method, originalUrl: url } = req
   const { statusCode: status, finished } = res
