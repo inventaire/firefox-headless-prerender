@@ -8,8 +8,10 @@ export function wait (ms) {
 export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
   const bool = await driver.executeScript('return window.prerenderReady')
   if (bool) return
-  if (attempt >= 10) return
-  await wait(500 * attempt)
+  // Stop trying after getPrerenderedPage timeout, to make sure that a page
+  // that doesn't set prerenderReady=true is reported as a timeout
+  if (attempt >= 100) return
+  await wait(500)
   return waitUntilPrerenderIsReady(driver, attempt + 1)
 }
 

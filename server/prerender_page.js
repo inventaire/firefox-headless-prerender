@@ -39,7 +39,7 @@ export async function getPrerenderedPage (res, url, refresh = false) {
       await driver.get(url)
       driver._previousOrigin = origin
     }
-    await waitUntilPrerenderIsReady(driver)
+    await pTimeout(waitUntilPrerenderIsReady(driver), { milliseconds: 30000 })
     console.timeEnd(timerKey)
     const page = await pTimeout(driver.getPageSource(), { milliseconds: 10000 })
     return formatPage(page)
