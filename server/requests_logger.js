@@ -37,9 +37,9 @@ const logLine = (req, res) => {
 
 const loggedHeaders = [
   'user-agent',
-  'forwarded',
+  // 'forwarded',
   'x-forwarded-for',
-  'x-real-ip',
+  // 'x-real-ip',
 ]
 
 // Using escape codes rather than chalk to save a few characters per line
