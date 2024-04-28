@@ -23,3 +23,7 @@ export async function getJSON (url) {
 export function getReqIp (req) {
   return req.get('x-forwarded-for')?.split(/,\s*/).at(-1)
 }
+
+export function getUserAgent (req) {
+  return req.get('user-agent')
+}

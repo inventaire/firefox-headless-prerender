@@ -12,16 +12,23 @@ import { dropIgnoredParameters, getPrerenderedUrl } from './rewrite_url.js'
 const { maxDrivers } = CONFIG
 const { preUrlPadding } = CONFIG.logs
 
-const ongoingRequestsIps = {}
+const ongoingRequestsPerIps = {}
+const ongoingRequestsPerUserAgent = {}
 
 export async function controller (req, res) {
   const reqIp = getReqIp(req)
-  ongoingRequestsIps[reqIp] ??= 0
-  ongoingRequestsIps[reqIp]++
+  const userAgent = req.get('user-agent')
+  ongoingRequestsPerIps[reqIp] ??= 0
+  ongoingRequestsPerIps[reqIp]++
+  ongoingRequestsPerUserAgent[userAgent] ??= 0
+  ongoingRequestsPerUserAgent[userAgent]++
   if (!reqIp) console.warn(yellow('no reqIp found'))
+  if (!userAgent) console.warn(yellow('no userAgent found'))
   try {
-    const tooManyRequests = ongoingRequestsIps[reqIp] > maxDrivers || (ongoingRequestsIps[reqIp] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
-    if (tooManyRequests) {
+    const tooManyIpRequests = ongoingRequestsPerIps[reqIp] > maxDrivers || (ongoingRequestsPerIps[reqIp] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
+    // Some services use several IPs (ex: facebookexternalhit uses several IPv6)
+    const tooManyUserAgentRequests = ongoingRequestsPerUserAgent[userAgent] > maxDrivers || (ongoingRequestsPerUserAgent[userAgent] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
+    if (tooManyIpRequests || tooManyUserAgentRequests) {
       res.set('retry-after', 30)
       res.status(429).end()
       return
@@ -39,7 +46,8 @@ export async function controller (req, res) {
   } catch (err) {
     handleError(res, err)
   } finally {
-    ongoingRequestsIps[reqIp]--
+    ongoingRequestsPerIps[reqIp]--
+    ongoingRequestsPerUserAgent[userAgent]--
   }
 }
 
