@@ -2,7 +2,6 @@ import { mkdirSync } from 'node:fs'
 import CONFIG from 'config'
 import { Builder } from 'selenium-webdriver'
 import firefox from 'selenium-webdriver/firefox.js'
-import { resetTab } from './helpers.js'
 import { getQueueLength, joinQueue, shiftQueue } from './queue.js'
 
 const { maxDrivers, firefoxProfilePath } = CONFIG
@@ -28,7 +27,6 @@ export async function unlockDriver (driver) {
     await quitDriver(driver)
     allDrivers.delete(driver)
   } else {
-    await resetTab(driver)
     idleDrivers.push(driver)
     shiftQueue()
   }

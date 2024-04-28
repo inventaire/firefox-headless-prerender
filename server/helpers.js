@@ -11,18 +11,8 @@ export async function waitUntilPrerenderIsReady (driver, attempt = 1) {
   // Stop trying after getPrerenderedPage timeout, to make sure that a page
   // that doesn't set prerenderReady=true is reported as a timeout
   if (attempt >= 100) return
-  await wait(500)
+  await wait(200)
   return waitUntilPrerenderIsReady(driver, attempt + 1)
-}
-
-export async function resetTab (driver) {
-  try {
-    await driver.executeScript('window.prerenderReady = false')
-  } catch (err) {
-    console.error(err)
-    // Force a driver refresh in case the reset failed
-    delete driver._previousOrigin
-  }
 }
 
 export async function getJSON (url) {
