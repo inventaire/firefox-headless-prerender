@@ -21,11 +21,13 @@ export async function getAvailableDriver () {
 }
 
 export async function unlockDriver (driver) {
-  if (driver._crashed) {
+  if (!driver || driver._crashed) {
     driversCount--
     populateDrivers()
-    await quitDriver(driver)
-    allDrivers.delete(driver)
+    if (driver) {
+      await quitDriver(driver)
+      allDrivers.delete(driver)
+    }
   } else {
     idleDrivers.push(driver)
     shiftQueue()
@@ -76,6 +78,7 @@ async function handleExit () {
 }
 
 async function quitDriver (driver) {
+  if (!driver) return
   try {
     await driver.quit()
   } catch (err) {
