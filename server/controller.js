@@ -2,6 +2,7 @@ import CONFIG from 'config'
 import { yellow } from 'tiny-chalk'
 import { getRedirection } from './anticipate_redirection.js'
 import { getCachedPage, populateCache } from './cache.js'
+import { getCPUsAverageLoad } from './cpu.js'
 import { setPageMetadata } from './get_page_metadata.js'
 import { getReqIp } from './helpers.js'
 import { getPrerenderedPage } from './prerender_page.js'
@@ -19,7 +20,7 @@ export async function controller (req, res) {
   ongoingRequestsIps[reqIp]++
   if (!reqIp) console.warn(yellow('no reqIp found'))
   try {
-    const tooManyRequests = ongoingRequestsIps[reqIp] > maxDrivers || (ongoingRequestsIps[reqIp] > 1 && queueOverflows())
+    const tooManyRequests = ongoingRequestsIps[reqIp] > maxDrivers || (ongoingRequestsIps[reqIp] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
     if (tooManyRequests) {
       res.set('retry-after', 30)
       res.status(429).end()
