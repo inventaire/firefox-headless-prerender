@@ -25,11 +25,12 @@ export async function controller (req, res) {
   if (!reqIp) console.warn(yellow('no reqIp found'))
   if (!userAgent) console.warn(yellow('no userAgent found'))
   try {
-    const tooManyIpRequests = ongoingRequestsPerIps[reqIp] > maxDrivers || (ongoingRequestsPerIps[reqIp] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
+    const load = getCPUsAverageLoad()
+    const tooManyIpRequests = ongoingRequestsPerIps[reqIp] > maxDrivers || (ongoingRequestsPerIps[reqIp] > 1 && (queueOverflows() || load > 1))
     // Some services use several IPs (ex: facebookexternalhit uses several IPv6)
-    const tooManyUserAgentRequests = ongoingRequestsPerUserAgent[userAgent] > maxDrivers || (ongoingRequestsPerUserAgent[userAgent] > 1 && (queueOverflows() || getCPUsAverageLoad() > 1))
+    const tooManyUserAgentRequests = ongoingRequestsPerUserAgent[userAgent] > maxDrivers || (ongoingRequestsPerUserAgent[userAgent] > 1 && (queueOverflows() || load > 1))
     if (tooManyIpRequests || tooManyUserAgentRequests) {
-      res.set('retry-after', 30)
+      res.set('retry-after', 30 * Math.trunc(Math.max(1, load) ** 2))
       res.status(429).end()
       return
     }
