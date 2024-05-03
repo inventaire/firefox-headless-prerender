@@ -30,7 +30,7 @@ export async function controller (req, res) {
     // Some services use several IPs (ex: facebookexternalhit uses several IPv6)
     const tooManyUserAgentRequests = ongoingRequestsPerUserAgent[userAgent] > maxDrivers || (ongoingRequestsPerUserAgent[userAgent] > 1 && (queueOverflows() || load > 1))
     if (tooManyIpRequests || tooManyUserAgentRequests) {
-      res.set('retry-after', 30 * (Math.max(1, load) ** 2))
+      res.set('retry-after', 30 * Math.trunc(Math.max(1, load) ** 2))
       res.status(429).end()
       return
     }
