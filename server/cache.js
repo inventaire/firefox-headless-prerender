@@ -2,6 +2,7 @@ import { promisify } from 'node:util'
 import CONFIG from 'config'
 import level from 'level-party'
 import ttl from 'level-ttl'
+import { green, yellow } from 'tiny-chalk'
 
 const { preUrlPadding } = CONFIG.logs
 
@@ -13,11 +14,11 @@ export async function getCachedPage (url) {
   if (!enabled) return
   try {
     const html = await db.get(url)
-    console.log('cache hit'.padEnd(preUrlPadding), url)
+    console.log(green('cache hit'.padEnd(preUrlPadding)), url)
     return html
   } catch (err) {
     if (err.name === 'NotFoundError') {
-      console.log('cache miss'.padEnd(preUrlPadding), url)
+      console.log(yellow('cache miss'.padEnd(preUrlPadding)), url)
     } else {
       throw err
     }
